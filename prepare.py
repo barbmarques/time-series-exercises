@@ -1,3 +1,6 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
 def get_sales_data():
     '''
     This function reads the sales_data.csv and returns the data from all three databases into a single pandas dataframe.
@@ -6,8 +9,32 @@ def get_sales_data():
     return df
 
 df = get_sales_data()
-df.head()
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+def prep_sales_data(df):
+    '''
+    This function takes in a dataframe and returns the dataframe with the index reset to the given column as a datetime variable, adds a column for total amount of sale and adds a column for month and weekday, and drops the item_upc14 column (because it is a duplicate of item_upc12).  
+    '''
+    # change data type of column to a datetime variable
+    df['sale_date'] = pd.to_datetime(df.sale_date, format='%a, %d %b %Y %H:%M:%S %Z')
+    
+    # change datetime format
+    
+    #set column as the df index
+    df = df.set_index('sale_date').sort_index()
+    
+    #add a column for total amount of sale in dollars
+    df['sale_total'] = df.sale_amount * df.item_price
+    
+    #add a column for month and day of week
+    df['month'] = df.index.month
+    df['day_of_week'] = df.index.day_name()
+    
+    #drops the item_upc14 column because it is a duplicate of item_upc12
+    df.drop(columns = ['item_upc14'])
+
+    return df
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def plot_sales_items():
@@ -31,7 +58,6 @@ def plot_sales_items():
     plt.show()
     return
 
-plot_sales_items()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
