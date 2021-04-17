@@ -37,6 +37,35 @@ def prep_sales_data(df):
     return df
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+def prep_ops(df):
+    '''
+    This function preps the ops data set for use in visualization and modeling.
+    The 'Date' column is converted to a datetime data type and set as the index.
+    Columns are added for month and year, based on the index value. Null values 
+    are backfilled with values.  Wind and Solar backfills are combined to fill 
+    the Wind+Solar backfill values. 
+    '''
+    # change data type of column to a datetime variable
+    df['Date'] = pd.to_datetime(df['Date'])
+    
+    #set column as the df index
+    df = df.set_index('Date').sort_index()
+    
+   
+    #add columns for month, year and day of the week
+    df['Month'] = df.index.month
+    df['Year'] = df.index.year
+    df['Weekday'] = df.index.weekday
+    
+    # use .fillna to backfill any missing values
+    df = df.fillna(axis = 1, method = 'bfill')
+    
+    # make wind+solar the sum of wind and solar (for backfilled values)
+    df['Wind+Solar'] = df.Wind + df.Solar
+    
+    return df
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def plot_sales_items():
     '''
     This function plots distribution of sale_amount and item_price
@@ -97,7 +126,7 @@ def add_total():
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def plot_dist():
+def plot_dist(train):
     
     '''
     This function plots distribution of consumption, wind, solar and wind+solar."
@@ -109,25 +138,25 @@ def plot_dist():
 
     #create first subplot (consumption)
     plt.subplot(221)
-    ops['Consumption'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
+    train['Consumption'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
     plt.title('Distribution of Consumption')
     plt.xlabel('Consumption')
     
     #create second subplot (wind)
     plt.subplot (222)
-    ops['Wind'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
+    train['Wind'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
     plt.title('Distribution of Wind')
     plt.xlabel('Wind')
     
     #create third subplot (solar)
     plt.subplot(223)
-    ops['Solar'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
+    train['Solar'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
     plt.title('Distribution of Solar')
     plt.xlabel('Solar')
     
-    #create second subplot (wind)
+    #create fourth subplot (wind + solar)
     plt.subplot (224)
-    ops['Wind+Solar'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
+    train['Wind+Solar'].plot.hist(color = 'lightgreen', edgecolor = 'darkblue')
     plt.title('Distribution of Wind+Solar')
     plt.xlabel('Wind+Solar')
           
